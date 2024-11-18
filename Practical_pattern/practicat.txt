@@ -1,0 +1,227 @@
+7th
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the image
+image = cv2.imread('image.jpg', 0)  # Load as grayscale
+
+# Apply log transformation
+c = 255 / np.log(1 + np.max(image))
+log_image = c * (np.log(image + 1))
+
+# Convert to uint8
+log_image = np.array(log_image, dtype=np.uint8)
+
+# Display the original and log-transformed images
+plt.subplot(1, 2, 1)
+plt.title('Original Image')
+plt.imshow(image, cmap='gray')
+
+plt.subplot(1, 2, 2)
+plt.title('Log
+
+
+
+----------------
+
+8th
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the image and convert to grayscale
+image = cv2.imread('image.jpg', 0)
+
+# Get image dimensions
+rows, cols = image.shape
+
+# Perform Fourier Transform
+dft = np.fft.fft2(image)
+dft_shift = np.fft.fftshift(dft)
+
+# Define cutoff frequency and create mask
+cutoff = 30  # You can adjust this value
+mask = np.zeros((rows, cols), np.uint8)
+center_row, center_col = rows // 2, cols // 2
+mask[center_row - cutoff:center_row + cutoff, center_col - cutoff:center_col + cutoff] = 1
+
+# Apply mask and inverse DFT
+filtered_dft = dft_shift * mask
+idft_shift = np.fft.ifftshift(filtered_dft)
+filtered_image = np.fft.ifft2(idft_shift)
+filtered_image = np.abs(filtered_image)
+
+# Display the original and filtered images
+plt.subplot(1, 2, 1)
+plt.title('Original Image')
+plt.imshow(image, cmap='gray')
+
+plt.subplot(1, 2, 2)
+plt.title('Ideal Low Pass Filtered Image')
+plt.imshow(filtered_image, cmap='gray')
+plt.show()
+
+-----------
+
+9th
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the image and convert to grayscale
+image = cv2.imread('image.jpg', 0)
+
+# Get image dimensions
+rows, cols = image.shape
+
+# Perform Fourier Transform
+dft = np.fft.fft2(image)
+dft_shift = np.fft.fftshift(dft)
+
+# Define cutoff frequency and order for Butterworth filter
+cutoff = 30  # Adjust this value for different filtering
+order = 2    # Order of the Butterworth filter
+
+# Create Butterworth filter mask
+mask = np.zeros((rows, cols), np.float32)
+center_row, center_col = rows // 2, cols // 2
+for i in range(rows):
+    for j in range(cols):
+        distance = np.sqrt((i - center_row) ** 2 + (j - center_col) ** 2)
+        mask[i, j] = 1 / (1 + (distance / cutoff) ** (2 * order))
+
+# Apply mask and inverse DFT
+filtered_dft = dft_shift * mask
+idft_shift = np.fft.ifftshift(filtered_dft)
+filtered_image = np.fft.ifft2(idft_shift)
+filtered_image = np.abs(filtered_image)
+
+# Display the original and filtered images
+plt.subplot(1, 2, 1)
+plt.title('Original Image')
+plt.imshow(image, cmap='gray')
+
+plt.subplot(1, 2, 2)
+plt.title('Butterworth Low Pass Filtered Image')
+plt.imshow(filtered_image, cmap='gray')
+plt.show()
+
+-----
+10
+
+
+
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the image and convert to grayscale
+image = cv2.imread('image.jpg', 0)
+
+# Get image dimensions
+rows, cols = image.shape
+
+# Perform Fourier Transform
+dft = np.fft.fft2(image)
+dft_shift = np.fft.fftshift(dft)
+
+# Define cutoff frequency for Gaussian filter
+cutoff = 30  # Adjust this value as needed
+
+# Create Gaussian filter mask
+mask = np.zeros((rows, cols), np.float32)
+center_row, center_col = rows // 2, cols // 2
+for i in range(rows):
+    for j in range(cols):
+        distance = np.sqrt((i - center_row) ** 2 + (j - center_col) ** 2)
+        mask[i, j] = np.exp(-(distance ** 2) / (2 * (cutoff ** 2)))
+
+# Apply mask and inverse DFT
+filtered_dft = dft_shift * mask
+idft_shift = np.fft.ifftshift(filtered_dft)
+filtered_image = np.fft.ifft2(idft_shift)
+filtered_image = np.abs(filtered_image)
+
+# Display the original and filtered images
+plt.subplot(1, 2, 1)
+plt.title('Original Image')
+plt.imshow(image, cmap='gray')
+
+plt.subplot(1, 2, 2)
+plt.title('Gaussian Low Pass Filtered Image')
+plt.imshow(filtered_image, cmap='gray')
+plt.show()
+
+
+--------
+11
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the image and convert to grayscale
+image = cv2.imread('image.jpg', 0)
+
+# Apply GaussianBlur to reduce noise before edge detection
+blurred_image = cv2.GaussianBlur(image, (5, 5), 0)
+
+# Perform Canny edge detection
+edges = cv2.Canny(blurred_image, 100, 200)
+
+# Display the original image and the edges detected
+plt.subplot(1, 2, 1)
+plt.title('Original Image')
+plt.imshow(image, cmap='gray')
+
+plt.subplot(1, 2, 2)
+plt.title('Edge Detection (Boundary Detection)')
+plt.imshow(edges, cmap='gray')
+plt.show()
+
+
+---------
+12
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the HED neural network model (prototxt and caffemodel paths)
+net = cv2.dnn.readNetFromCaffe('deploy.prototxt', 'hed_pretrained_bsds.caffemodel')
+
+# Load and preprocess the image
+image = cv2.imread('image.jpg')
+image = cv2.resize(image, (500, 500))  # Resize for faster processing
+(h, w) = image.shape[:2]
+
+# Preprocess the image for the neural network
+blob = cv2.dnn.blobFromImage(image, scalefactor=1.0, size=(w, h),
+                             mean=(104.00698793, 116.66876762, 122.67891434),
+                             swapRB=False, crop=False)
+
+# Set the blob as input to the network
+net.setInput(blob)
+
+# Perform forward pass to get the edge map
+edge_map = net.forward()
+edge_map = edge_map[0, 0]  # Extract the single channel output
+edge_map = cv2.resize(edge_map, (w, h))  # Resize to match input image size
+
+# Convert edge map to displayable format
+edge_map = (255 * edge_map).astype("uint8")
+
+# Display the original image and the edge detection result
+plt.subplot(1, 2, 1)
+plt.title('Original Image')
+plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+
+plt.subplot(1, 2, 2)
+plt.title('Edge Detection (Neural Network)')
+plt.imshow(edge_map, cmap='gray')
+plt.show()
